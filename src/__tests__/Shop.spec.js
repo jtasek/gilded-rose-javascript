@@ -135,3 +135,11 @@ describe('Shop class', function() {
     })
   })
 })
+
+// tODO add test
+/*
+          if (this.items[i].quality < 50) {
+            this.items[i].quality = this.items[i].quality + 1
+          }
+
+*/
