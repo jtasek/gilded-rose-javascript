@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "test-watch": "jest --watch",
     "fixture": "babel-node --presets es2015 fixture.js"
   },
   "author": "",
