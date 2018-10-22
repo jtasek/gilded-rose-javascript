@@ -50,4 +50,82 @@ describe('Gilded Rose shop', function() {
 
     expect(items[0].sellIn).toBe(0)
   })
+
+  it('Quality of an item is never negative', function() {
+    const shop = new Shop([new Item('foo', 1, 0)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(0)
+  })
+
+  it('quality of an item is never more than 50', function() {
+    const shop = new Shop([new Item('foo', 1, 50)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBeLessThan(50)
+  })
+
+  it('"Aged Brie" quality is never more than 50', function() {
+    const shop = new Shop([new Item('Aged Brie', 1, 50)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(50)
+  })
+
+  it('"Sulfuras" never decreases in Quality', function() {
+    const shop = new Shop([new Item('Sulfuras, Hand of Ragnaros', 1, 50)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(50)
+  })
+
+  it('"Sulfuras" never decreases in Sellin', function() {
+    const shop = new Shop([new Item('Sulfuras, Hand of Ragnaros', 1, 50)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].sellIn).toBe(1)
+  })
+
+  it('"Backstage passes" Quality increases by 2 when there are 10 days or less', function() {
+    const shop = new Shop([
+      new Item('Backstage passes to a TAFKAL80ETC concert', 10, 0)
+    ])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(2)
+  })
+
+  it('"Backstage passes" Quality increases by 3 when there are 5 days or less', function() {
+    const shop = new Shop([
+      new Item('Backstage passes to a TAFKAL80ETC concert', 5, 0)
+    ])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(3)
+  })
+
+  it('"Backstage passes" Quality drops to 0 after the concert', function() {
+    const shop = new Shop([
+      new Item('Backstage passes to a TAFKAL80ETC concert', 0, 5)
+    ])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(0)
+  })
+
+  it('Once the sell by date has passed, Quality degrades twice as fast', function() {
+    const shop = new Shop([new Item('foo', -1, 5)])
+
+    const items = shop.updateQuality()
+
+    expect(items[0].quality).toBe(3)
+  })
 })
