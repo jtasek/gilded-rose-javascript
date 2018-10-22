@@ -115,7 +115,7 @@ describe('Shop class', function() {
         expect(items[0].quality).toBe(3)
       })
 
-      it('"Backstage passes" Quality drops to 0 after the concert', function() {
+      it('"Backstage passes" Quality drops to 0 if the SellIn is 0', function() {
         const shop = new Shop([
           new Item('Backstage passes to a TAFKAL80ETC concert', 0, 5)
         ])
@@ -126,7 +126,7 @@ describe('Shop class', function() {
       })
     })
 
-    it('Once the sell by date has passed, Quality degrades twice as fast', function() {
+    it('If sellIn is negative the Quality degrades by 2', function() {
       const shop = new Shop([new Item('foo', -1, 5)])
 
       const items = shop.updateQuality()
