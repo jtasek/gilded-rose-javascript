@@ -1,3 +1,5 @@
+// TODO - refactor with strategy pattern, remove magic numbers, add unit test for missing case, implement new requirement
+
 export class Shop {
   constructor(items = []) {
     this.items = items
