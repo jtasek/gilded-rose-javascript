@@ -70,6 +70,22 @@ describe('Shop class', function() {
       expect(items[0].quality).toBeLessThan(50)
     })
 
+    it('"Aged Brie" increases in Quality the older it gets', function() {
+      const shop = new Shop([new Item('Aged Brie', 1, 1)])
+
+      const items = shop.updateQuality()
+
+      expect(items[0].quality).toBe(2)
+    })
+
+    it('"Aged Brie" increases in Quality with negative sellIn value', function() {
+      const shop = new Shop([new Item('Aged Brie', -1, 1)])
+
+      const items = shop.updateQuality()
+
+      expect(items[0].quality).toBe(3)
+    })
+
     it('"Aged Brie" quality is never more than 50', function() {
       const shop = new Shop([new Item('Aged Brie', 1, 50)])
 
