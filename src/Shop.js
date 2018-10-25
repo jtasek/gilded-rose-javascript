@@ -1,64 +1,104 @@
-// TODO - refactor with strategy pattern, remove magic numbers, add unit test for missing case, implement new requirement
+// TODO - implement new requirement
+const MIN_QUALITY_LIMIT = 0
+const MAX_QUALITY_LIMIT = 50
+
+const QUALITY_UPDATE_SPEED = 1
+const DOUBLE_QUALITY_UPDATE_SPEED = QUALITY_UPDATE_SPEED * 2
+
+const BASE_SELLIN_TRESHOLD = 0
+const FIRST_SELLIN_TRESHOLD = 10
+const FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED = 2
+const SECOND_SELLIN_TRESHOLD = 5
+const SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED = 3
+const SELLIN_UPDATE_SPEED = 1
+
+function getQualityUpdateSpeed(item) {
+  return item.sellIn < BASE_SELLIN_TRESHOLD
+    ? DOUBLE_QUALITY_UPDATE_SPEED
+    : QUALITY_UPDATE_SPEED
+}
+
+function decreaseSellIn(item) {
+  item.sellIn -= SELLIN_UPDATE_SPEED
+}
+
+function resetQuality(item) {
+  item.quality = MIN_QUALITY_LIMIT
+}
+
+function increaseQuality(item, speed) {
+  const updateSpeed = speed ? speed : getQualityUpdateSpeed(item)
+
+  item.quality =
+    item.quality < MAX_QUALITY_LIMIT - updateSpeed
+      ? item.quality + updateSpeed
+      : MAX_QUALITY_LIMIT
+}
+
+function decreaseQuality(item) {
+  const updateSpeed = getQualityUpdateSpeed(item)
+
+  item.quality =
+    item.quality > MIN_QUALITY_LIMIT + updateSpeed
+      ? item.quality - updateSpeed
+      : MIN_QUALITY_LIMIT
+}
+
+const defaultSellingStrategy = item => {
+  decreaseQuality(item)
+  decreaseSellIn(item)
+}
+
+const cheeseSellingStrategy = item => {
+  increaseQuality(item)
+  decreaseSellIn(item)
+}
+
+const concertSellingStrategy = item => {
+  if (item.sellIn <= BASE_SELLIN_TRESHOLD) {
+    resetQuality(item)
+  } else if (item.sellIn <= SECOND_SELLIN_TRESHOLD) {
+    increaseQuality(item, SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED)
+  } else if (item.sellIn <= FIRST_SELLIN_TRESHOLD) {
+    increaseQuality(item, FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED)
+  } else {
+    increaseQuality(item)
+  }
+
+  decreaseSellIn(item)
+}
+
+const constantSellingStrategy = item => {
+  // this item doesn't age and keeps quality
+}
+
+// Map special items to concrete strategies
+const sellingStrategies = {
+  'Aged Brie': cheeseSellingStrategy,
+  'Backstage passes to a TAFKAL80ETC concert': concertSellingStrategy,
+  'Sulfuras, Hand of Ragnaros': constantSellingStrategy
+}
 
 export class Shop {
   constructor(items = []) {
+    // TODO: dependency injection
     this.items = items
+    this.sellingStrategies = sellingStrategies
+    this.defaultSellingStrategy = defaultSellingStrategy
+  }
+  findSellingStrategy(item) {
+    const concreteStrategy = this.sellingStrategies[item.name]
+    // In case no concrete strategy is found just return default strategy
+    return concreteStrategy ? concreteStrategy : this.defaultSellingStrategy
   }
   updateQuality() {
-    for (var i = 0; i < this.items.length; i++) {
-      if (
-        this.items[i].name != 'Aged Brie' &&
-        this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert'
-      ) {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-            this.items[i].quality = this.items[i].quality - 1
-          }
-        }
-      } else {
-        if (this.items[i].quality < 50) {
-          this.items[i].quality = this.items[i].quality + 1
-          if (
-            this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert'
-          ) {
-            if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1
-              }
-            }
-            if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1
-              }
-            }
-          }
-        }
-      }
-      if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-        this.items[i].sellIn = this.items[i].sellIn - 1
-      }
-      if (this.items[i].sellIn < 0) {
-        if (this.items[i].name != 'Aged Brie') {
-          if (
-            this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert'
-          ) {
-            if (this.items[i].quality > 0) {
-              if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-                this.items[i].quality = this.items[i].quality - 1
-              }
-            }
-          } else {
-            this.items[i].quality =
-              this.items[i].quality - this.items[i].quality
-          }
-        } else {
-          if (this.items[i].quality < 50) {
-            this.items[i].quality = this.items[i].quality + 1
-          }
-        }
-      }
-    }
+    // Iterate over all items
+    return this.items.map(item => {
+      const sellignStrategy = this.findSellingStrategy(item)
+      // Update quality of an item with concrete selling strategy
+      sellignStrategy(item)
 
-    return this.items
+      return item
+    })
   }
 }
