@@ -2,45 +2,45 @@
 const MIN_QUALITY_LIMIT = 0
 const MAX_QUALITY_LIMIT = 50
 
-const QUALITY_UPDATE_SPEED = 1
-const DOUBLE_QUALITY_UPDATE_SPEED = QUALITY_UPDATE_SPEED * 2
+const QUALITY_UPDATE_STEP = 1
+const DOUBLE_QUALITY_UPDATE_STEP = QUALITY_UPDATE_STEP * 2
 
 const BASE_SELLIN_TRESHOLD = 0
 const FIRST_SELLIN_TRESHOLD = 10
-const FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED = 2
+const FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP = 2
 const SECOND_SELLIN_TRESHOLD = 5
-const SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED = 3
-const SELLIN_UPDATE_SPEED = 1
+const SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP = 3
+const SELLIN_UPDATE_STEP = 1
 
-function getQualityUpdateSpeed(item) {
+function getQualityUpdateStep(item) {
   return item.sellIn < BASE_SELLIN_TRESHOLD
-    ? DOUBLE_QUALITY_UPDATE_SPEED
-    : QUALITY_UPDATE_SPEED
+    ? DOUBLE_QUALITY_UPDATE_STEP
+    : QUALITY_UPDATE_STEP
 }
 
 function decreaseSellIn(item) {
-  item.sellIn -= SELLIN_UPDATE_SPEED
+  item.sellIn -= SELLIN_UPDATE_STEP
 }
 
 function resetQuality(item) {
   item.quality = MIN_QUALITY_LIMIT
 }
 
-function increaseQuality(item, speed) {
-  const updateSpeed = speed ? speed : getQualityUpdateSpeed(item)
+function increaseQuality(item, step) {
+  const updateStep = step ? step : getQualityUpdateStep(item)
 
   item.quality =
-    item.quality < MAX_QUALITY_LIMIT - updateSpeed
-      ? item.quality + updateSpeed
+    item.quality < MAX_QUALITY_LIMIT - updateStep
+      ? item.quality + updateStep
       : MAX_QUALITY_LIMIT
 }
 
 function decreaseQuality(item) {
-  const updateSpeed = getQualityUpdateSpeed(item)
+  const updateStep = getQualityUpdateStep(item)
 
   item.quality =
-    item.quality > MIN_QUALITY_LIMIT + updateSpeed
-      ? item.quality - updateSpeed
+    item.quality > MIN_QUALITY_LIMIT + updateStep
+      ? item.quality - updateStep
       : MIN_QUALITY_LIMIT
 }
 
@@ -58,9 +58,9 @@ const concertSellingStrategy = item => {
   if (item.sellIn <= BASE_SELLIN_TRESHOLD) {
     resetQuality(item)
   } else if (item.sellIn <= SECOND_SELLIN_TRESHOLD) {
-    increaseQuality(item, SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED)
+    increaseQuality(item, SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP)
   } else if (item.sellIn <= FIRST_SELLIN_TRESHOLD) {
-    increaseQuality(item, FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_SPEED)
+    increaseQuality(item, FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP)
   } else {
     increaseQuality(item)
   }
@@ -97,7 +97,7 @@ export class Shop {
       const sellignStrategy = this.findSellingStrategy(item)
       // Update quality of an item with concrete selling strategy
       sellignStrategy(item)
-
+      // Return processed item
       return item
     })
   }
