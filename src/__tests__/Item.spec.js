@@ -1,13 +1,15 @@
 import { Item } from '../Item'
 
 describe('Item class', () => {
-  it('Item is defined', function() {
-    let item = new Item()
+  describe('constructor tests', () => {
+    it('Item is defined', function() {
+      let item = new Item()
 
-    expect(item).toBeDefined()
+      expect(item).toBeDefined()
+    })
   })
 
-  describe('quality property', () => {
+  describe('quality property tests', () => {
     let quality = 1
 
     it('quality is undefined when not specified in the constructor', function() {
@@ -23,7 +25,7 @@ describe('Item class', () => {
     })
   })
 
-  describe('sellIn property', () => {
+  describe('sellIn property tests', () => {
     let sellin = 1
 
     it('sellIn is undefined when not specified in the constructor', function() {
@@ -39,7 +41,7 @@ describe('Item class', () => {
     })
   })
 
-  describe('name property', () => {
+  describe('name property tests', () => {
     let name = 'foo'
 
     it('name is undefined when not specified in the constructor', function() {
