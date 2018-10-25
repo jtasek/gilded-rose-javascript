@@ -1,21 +1,15 @@
-// TODO - implement new requirement
-const MIN_QUALITY_LIMIT = 0
-const MAX_QUALITY_LIMIT = 50
-
-const QUALITY_UPDATE_STEP = 1
-const DOUBLE_QUALITY_UPDATE_STEP = QUALITY_UPDATE_STEP * 2
-
 const BASE_SELLIN_TRESHOLD = 0
 const FIRST_SELLIN_TRESHOLD = 10
 const FIRST_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP = 2
+const MAX_QUALITY_LIMIT = 50
+const MIN_QUALITY_LIMIT = 0
+const QUALITY_UPDATE_STEP = 1
 const SECOND_SELLIN_TRESHOLD = 5
 const SECOND_SELLIN_TRESHOLD_QUALITY_UPDATE_STEP = 3
 const SELLIN_UPDATE_STEP = 1
 
-function getQualityUpdateStep(item) {
-  return item.sellIn < BASE_SELLIN_TRESHOLD
-    ? DOUBLE_QUALITY_UPDATE_STEP
-    : QUALITY_UPDATE_STEP
+function getQualityUpdateStep(item, step) {
+  return item.sellIn < BASE_SELLIN_TRESHOLD ? step * 2 : step
 }
 
 function decreaseSellIn(item) {
@@ -26,17 +20,15 @@ function resetQuality(item) {
   item.quality = MIN_QUALITY_LIMIT
 }
 
-function increaseQuality(item, step) {
-  const updateStep = step ? step : getQualityUpdateStep(item)
-
+function increaseQuality(item, step = QUALITY_UPDATE_STEP) {
   item.quality =
-    item.quality < MAX_QUALITY_LIMIT - updateStep
-      ? item.quality + updateStep
+    item.quality < MAX_QUALITY_LIMIT - step
+      ? item.quality + step
       : MAX_QUALITY_LIMIT
 }
 
-function decreaseQuality(item) {
-  const updateStep = getQualityUpdateStep(item)
+function decreaseQuality(item, step = QUALITY_UPDATE_STEP) {
+  const updateStep = getQualityUpdateStep(item, step)
 
   item.quality =
     item.quality > MIN_QUALITY_LIMIT + updateStep
@@ -44,7 +36,7 @@ function decreaseQuality(item) {
       : MIN_QUALITY_LIMIT
 }
 
-const defaultSellingStrategy = item => {
+const normalSellingStrategy = item => {
   decreaseQuality(item)
   decreaseSellIn(item)
 }
@@ -72,11 +64,17 @@ const constantSellingStrategy = item => {
   // this item doesn't age and keeps quality
 }
 
+const conjuredSellingStrategy = item => {
+  decreaseQuality(item, QUALITY_UPDATE_STEP * 2)
+  decreaseSellIn(item)
+}
+
 // Map special items to concrete strategies
 const sellingStrategies = {
   'Aged Brie': cheeseSellingStrategy,
-  'Backstage passes to a TAFKAL80ETC concert': concertSellingStrategy,
-  'Sulfuras, Hand of Ragnaros': constantSellingStrategy
+  'Backstage passes': concertSellingStrategy,
+  Sulfuras: constantSellingStrategy,
+  Conjured: conjuredSellingStrategy
 }
 
 export class Shop {
@@ -84,12 +82,18 @@ export class Shop {
     // TODO: dependency injection
     this.items = items
     this.sellingStrategies = sellingStrategies
-    this.defaultSellingStrategy = defaultSellingStrategy
+    this.defaultSellingStrategy = normalSellingStrategy
   }
   findSellingStrategy(item) {
-    const concreteStrategy = this.sellingStrategies[item.name]
+    // Search for a concrete strategy for this item
+    const strategyKeys = Object.keys(this.sellingStrategies).filter(key =>
+      item.name.startsWith(key)
+    )
+
     // In case no concrete strategy is found just return default strategy
-    return concreteStrategy ? concreteStrategy : this.defaultSellingStrategy
+    return strategyKeys.length > 0
+      ? this.sellingStrategies[strategyKeys[0]]
+      : this.defaultSellingStrategy
   }
   updateQuality() {
     // Iterate over all items

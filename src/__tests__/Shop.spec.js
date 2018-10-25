@@ -31,7 +31,7 @@ describe('Shop class', () => {
   })
 
   describe('updateQuality method tests', () => {
-    describe('generic item', () => {
+    describe('normal item', () => {
       it('name of an item is not modified', () => {
         const shop = new Shop([new Item('foo', 1, 1)])
 
@@ -95,7 +95,7 @@ describe('Shop class', () => {
 
         const items = shop.updateQuality()
 
-        expect(items[0].quality).toBe(3)
+        expect(items[0].quality).toBe(2)
       })
 
       it('"Aged Brie" quality is never more than 50', () => {
@@ -165,6 +165,26 @@ describe('Shop class', () => {
         const items = shop.updateQuality()
 
         expect(items[0].quality).toBe(sellIn)
+      })
+    })
+
+    describe('Conjured', () => {
+      const quality = 5
+
+      it('"Conjured" item quality decreases by 2 each day', () => {
+        const shop = new Shop([new Item('Conjured Mana Cake', 11, quality)])
+
+        const items = shop.updateQuality()
+
+        expect(items[0].quality).toBe(quality - 2)
+      })
+
+      it('"Conjured" item quality decreases by 4 when sellIn is negative', () => {
+        const shop = new Shop([new Item('Conjured Mana Cake', -1, quality)])
+
+        const items = shop.updateQuality()
+
+        expect(items[0].quality).toBe(quality - 4)
       })
     })
   })
