@@ -90,12 +90,12 @@ describe('Shop class', () => {
         expect(items[0].quality).toBe(2)
       })
 
-      it('"Aged Brie" quality increases by 1 when sellIn is negative', () => {
+      it('"Aged Brie" quality increases by 2 when sellIn is negative', () => {
         const shop = new Shop([new Item('Aged Brie', -1, 1)])
 
         const items = shop.updateQuality()
 
-        expect(items[0].quality).toBe(2)
+        expect(items[0].quality).toBe(3)
       })
 
       it('"Aged Brie" quality is never more than 50', () => {
