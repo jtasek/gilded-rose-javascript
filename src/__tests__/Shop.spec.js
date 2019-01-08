@@ -223,7 +223,7 @@ describe('Shop class', () => {
       })
     });
 
-    xdescribe('Conjured', () => {
+    describe('Conjured', () => {
       const quality = 5;
 
       it('"Conjured" item quality decreases by 2 each day', () => {

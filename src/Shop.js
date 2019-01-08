@@ -2,6 +2,7 @@ const QUALITY_MAX = 50;
 const QUALITY_MIN = 0;
 const SELLIN_FIRST_TRESHOLD = 10;
 const SELLIN_SECOND_TRESHOLD = 5;
+const DEGRADE_SPEED = 1;
 
 const BRIE_NAME = 'Aged Brie';
 const CONCERT_NAME = 'Backstage passes to a TAFKAL80ETC concert';
@@ -13,10 +14,8 @@ function increaseQuality(item) {
     }
 }
 
-function decreaseQuality(item) {
-    if (item.quality > QUALITY_MIN) {
-        item.quality = item.quality - 1;
-    }
+function decreaseQuality(item, speed = DEGRADE_SPEED) {
+    item.quality = item.quality > QUALITY_MIN + speed ? item.quality - speed : QUALITY_MIN;
 }
 
 function decreaseSellIn(item) {
@@ -65,6 +64,21 @@ function concertStrategy(item) {
     return false;
 }
 
+function conjuredStrategy(item) {
+    if (item.name.startsWith("Conjured")) {
+        const speed = DEGRADE_SPEED * 2;
+
+        decreaseQuality(item, speed);
+
+        if (isExpired(item)) {
+            decreaseQuality(item, speed);
+        }
+
+        return true;
+    }
+    return false;
+}
+
 function defaultStrategy(item) {
     decreaseQuality(item);
 
@@ -75,7 +89,7 @@ function defaultStrategy(item) {
     return true;
 }
 
-const strategies = [brieStrategy, concertStrategy, defaultStrategy];
+const strategies = [brieStrategy, concertStrategy, conjuredStrategy, defaultStrategy];
 
 function updateItem(item) {
     if (item.name === SULFURAS_NAME) return;
