@@ -1,54 +1,98 @@
-export class Shop {
-  constructor(items=[]){
-    this.items = items;
-  }
-  updateQuality() {
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].name != 'Aged Brie' && this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-            this.items[i].quality = this.items[i].quality - 1;
-          }
+const QUALITY_MAX = 50;
+const QUALITY_MIN = 0;
+const SELLIN_FIRST_TRESHOLD = 10;
+const SELLIN_SECOND_TRESHOLD = 5;
+
+const BRIE_NAME = 'Aged Brie';
+const CONCERT_NAME = 'Backstage passes to a TAFKAL80ETC concert';
+const SULFURAS_NAME = 'Sulfuras, Hand of Ragnaros';
+
+function increaseQuality(item) {
+    if (item.quality < QUALITY_MAX) {
+        item.quality = item.quality + 1;
+    }
+}
+
+function decreaseQuality(item) {
+    if (item.quality > QUALITY_MIN) {
+        item.quality = item.quality - 1;
+    }
+}
+
+function decreaseSellIn(item) {
+    item.sellIn = item.sellIn - 1;
+}
+
+function resetQuality(item) {
+    item.quality = QUALITY_MIN;
+}
+
+function isExpired(item) {
+    return item.sellIn < 0;
+}
+
+function brieStrategy(item) {
+    if (item.name === BRIE_NAME) {
+        increaseQuality(item);
+
+        if (isExpired(item)) {
+            increaseQuality(item);
         }
-      } else {
-        if (this.items[i].quality < 50) {
-          this.items[i].quality = this.items[i].quality + 1;
-          if (this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-            if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-          }
-        }
-      }
-      if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-        this.items[i].sellIn = this.items[i].sellIn - 1;
-      }
-      if (this.items[i].sellIn < 0) {
-        if (this.items[i].name != 'Aged Brie') {
-          if (this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].quality > 0) {
-              if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-                this.items[i].quality = this.items[i].quality - 1;
-              }
-            }
-          } else {
-            this.items[i].quality = this.items[i].quality - this.items[i].quality;
-          }
-        } else {
-          if (this.items[i].quality < 50) {
-            this.items[i].quality = this.items[i].quality + 1;
-          }
-        }
-      }
+
+        return true;
     }
 
-    return this.items;
-  }
+    return false;
+}
+
+function concertStrategy(item) {
+    if (item.name === CONCERT_NAME) {
+        increaseQuality(item);
+
+        if (isExpired(item)) {
+            resetQuality(item);
+        } else {
+            if (item.sellIn < SELLIN_FIRST_TRESHOLD) {
+                increaseQuality(item);
+            }
+            if (item.sellIn < SELLIN_SECOND_TRESHOLD) {
+                increaseQuality(item);
+            }
+        }
+
+        return true;
+    }
+    return false;
+}
+
+function defaultStrategy(item) {
+    decreaseQuality(item);
+
+    if (isExpired(item)) {
+        decreaseQuality(item);
+    }
+
+    return true;
+}
+
+const strategies = [brieStrategy, concertStrategy, defaultStrategy];
+
+function updateItem(item) {
+    if (item.name === SULFURAS_NAME) return;
+
+    decreaseSellIn(item);
+
+    strategies.find(strategy => strategy(item))
+}
+
+export class Shop {
+    constructor(items = []) {
+        this.items = items;
+    }
+
+    updateQuality() {
+        this.items.forEach(item => updateItem(item));
+
+        return this.items;
+    }
 }
