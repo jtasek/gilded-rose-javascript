@@ -79,6 +79,14 @@ describe('Shop class', () => {
 
         expect(items[0].quality).toBe(3)
       })
+
+        it('quality of an item never decreases when sellIn is zero or negative and quality is zero or negative', () => {
+            const shop = new Shop([new Item('foo', 0, 0)])
+
+            const items = shop.updateQuality()
+
+            expect(items[0].quality).toBe(0)
+        })
     })
 
     describe('Aged Brie', () => {
@@ -105,6 +113,15 @@ describe('Shop class', () => {
 
         expect(items[0].quality).toBe(50)
       })
+
+        it('"Aged Brie" quality is never more than 50 when sellIn is negative', () => {
+            const shop = new Shop([new Item('Aged Brie', -1, 50)])
+
+            const items = shop.updateQuality()
+
+            expect(items[0].quality).toBe(50)
+        })
+
     })
 
     describe('Sulfuras', () => {
@@ -115,6 +132,14 @@ describe('Shop class', () => {
 
         expect(items[0].quality).toBe(50)
       })
+
+        it('"Sulfuras" quality never decreases with sellIn is negative', () => {
+            const shop = new Shop([new Item('Sulfuras, Hand of Ragnaros', -1, 50)])
+
+            const items = shop.updateQuality()
+
+            expect(items[0].quality).toBe(50)
+        })
 
       it('"Sulfuras" sellIn never decreases', () => {
         const shop = new Shop([new Item('Sulfuras, Hand of Ragnaros', 1, 50)])
@@ -146,6 +171,16 @@ describe('Shop class', () => {
         expect(items[0].quality).toBe(2)
       })
 
+        it('"Backstage passes" quality increases by 1 when quality is 49 and sellIn is 10 days or less', () => {
+            const shop = new Shop([
+                new Item('Backstage passes to a TAFKAL80ETC concert', 10, 49)
+            ])
+
+            const items = shop.updateQuality()
+
+            expect(items[0].quality).toBe(50)
+        })
+
       it('"Backstage passes" quality increases by 3 when sellIn is 5 days or less', () => {
         const shop = new Shop([
           new Item('Backstage passes to a TAFKAL80ETC concert', 5, 0)
@@ -155,6 +190,16 @@ describe('Shop class', () => {
 
         expect(items[0].quality).toBe(3)
       })
+
+        it('"Backstage passes" quality increases by 1 when quality is 49 and sellin is 5 days or less', () => {
+            const shop = new Shop([
+                new Item('Backstage passes to a TAFKAL80ETC concert', 5, 49)
+            ])
+
+            const items = shop.updateQuality()
+
+            expect(items[0].quality).toBe(50)
+        })
 
       it('"Backstage passes" quality drops to 0 when sellIn is 0', () => {
         const sellIn = 0
