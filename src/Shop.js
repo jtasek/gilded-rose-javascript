@@ -32,6 +32,7 @@ function isExpired(item) {
 
 function brieStrategy(item) {
     if (item.name === BRIE_NAME) {
+        decreaseSellIn(item);
         increaseQuality(item);
 
         if (isExpired(item)) {
@@ -46,6 +47,7 @@ function brieStrategy(item) {
 
 function concertStrategy(item) {
     if (item.name === CONCERT_NAME) {
+        decreaseSellIn(item);
         increaseQuality(item);
 
         if (isExpired(item)) {
@@ -66,6 +68,7 @@ function concertStrategy(item) {
 
 function conjuredStrategy(item) {
     if (item.name.startsWith("Conjured")) {
+        decreaseSellIn(item);
         const speed = DEGRADE_SPEED * 2;
 
         decreaseQuality(item, speed);
@@ -80,6 +83,7 @@ function conjuredStrategy(item) {
 }
 
 function defaultStrategy(item) {
+    decreaseSellIn(item);
     decreaseQuality(item);
 
     if (isExpired(item)) {
@@ -89,14 +93,14 @@ function defaultStrategy(item) {
     return true;
 }
 
-const strategies = [brieStrategy, concertStrategy, conjuredStrategy, defaultStrategy];
+function sulfurasStrategy(item) {
+    return item.name === SULFURAS_NAME;
+}
+
+const strategies = [sulfurasStrategy, brieStrategy, concertStrategy, conjuredStrategy];
 
 function updateItem(item) {
-    if (item.name === SULFURAS_NAME) return;
-
-    decreaseSellIn(item);
-
-    strategies.find(strategy => strategy(item))
+    strategies.find(strategy => strategy(item)) || defaultStrategy(item);
 }
 
 export class Shop {
