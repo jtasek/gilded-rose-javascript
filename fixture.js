@@ -1,5 +1,6 @@
 import { Shop } from './src/Shop'
 import { Item } from './src/Item'
+import { getUpdater } from './src/UpdaterFactory'
 
 const items = []
 
@@ -14,7 +15,7 @@ items.push(new Item('Backstage passes to a TAFKAL80ETC concert', 5, 49))
 // this conjured item does not work properly yet
 items.push(new Item('Conjured Mana Cake', 3, 6))
 
-const gildedRose = new Shop(items)
+const gildedRose = new Shop(items, getUpdater )
 
 const days = 2
 

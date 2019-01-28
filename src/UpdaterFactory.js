@@ -1,5 +1,5 @@
-import * as strategies from './Strategies.js'
+import {DefaultStrategy, strategies} from './ShopStrategies.js'
 
 export function getUpdater(item) {
-    return strategies.find(item.type === strategy.type) || defaultStrategy;
+    return strategies.find((strategy) => strategy.test(item)) || DefaultStrategy;
 }

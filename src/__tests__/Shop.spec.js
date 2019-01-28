@@ -1,5 +1,6 @@
 import { Shop } from '../Shop';
 import { Item } from '../Item';
+import { getUpdater } from '../UpdaterFactory';
 
 const QUALITY_MAX = 50;
 const QUALITY_MIN = 0;
@@ -16,7 +17,7 @@ function getShopWithoutItems() {
 }
 
 function getShopWithItem(name= DEFAULT_NAME, sellIn= 1, quality= 1) {
-  return new Shop([getItem(name, sellIn, quality)]);
+  return new Shop([getItem(name, sellIn, quality)], getUpdater);
 }
 
 function getItem(name= DEFAULT_NAME, sellIn= 1, quality= 1) {

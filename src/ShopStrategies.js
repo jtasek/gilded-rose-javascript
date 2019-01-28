@@ -31,11 +31,11 @@ function isExpired(item) {
 }
 
 export class BrieStrategy {
-    test(item) {
+    static test(item) {
         return item.name === BRIE_NAME;
     }
 
-    update() {
+    static update(item) {
         decreaseSellIn(item);
         increaseQuality(item);
 
@@ -46,11 +46,11 @@ export class BrieStrategy {
 }
 
 export class ConcertStrategy {
-    test(item) {
+    static test(item) {
         return item.name === CONCERT_NAME;
     }
 
-    update(item) {
+    static update(item) {
         decreaseSellIn(item);
         increaseQuality(item);
 
@@ -68,11 +68,11 @@ export class ConcertStrategy {
 }
 
 export class ConjuredStrategy {
-    test(item) {
+    static test(item) {
         return item.name.startsWith("Conjured");
     }
 
-    update(test) {
+    static update(item) {
         decreaseSellIn(item);
         const speed = DEGRADE_SPEED * 2;
 
@@ -84,21 +84,28 @@ export class ConjuredStrategy {
     }
 }
 
-export class defaultStrategy {
-    test(item){
+export class DefaultStrategy {
+    static test(item) {
         return true;
     }
 
-    decreaseSellIn(item);
-    decreaseQuality(item);
-
-    if (isExpired(item)) {
+    static update(item) {
+        decreaseSellIn(item);
         decreaseQuality(item);
+
+        if (isExpired(item)) {
+            decreaseQuality(item);
+        }
     }
 }
 
-export function sulfurasStrategy(item) {
-    return item.name === SULFURAS_NAME;
+export class SulfurasStrategy {
+    static test(item) {
+        return item.name === SULFURAS_NAME;
+    }
+
+    static update(item) {
+    }
 }
 
-export const strategies = [sulfurasStrategy, brieStrategy, concertStrategy, conjuredStrategy];
+export const strategies = [BrieStrategy, ConcertStrategy, ConjuredStrategy, SulfurasStrategy];
